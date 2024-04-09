@@ -23,12 +23,15 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinTheBezier, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
-  dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons;
+  dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
+  cxGeometry, dxFramedControl, dxPanel;
 
 type
   TForm1 = class(TdxFluentDesignForm)
     dxSkinController1: TdxSkinController;
-    cxButton1: TcxButton;
+    AddTodoButton: TcxButton;
+    MainPanel: TdxPanel;
+    procedure AddTodoButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,5 +44,10 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.AddTodoButtonClick(Sender: TObject);
+begin
+  Form2.ShowModal;
+end;
 
 end.
