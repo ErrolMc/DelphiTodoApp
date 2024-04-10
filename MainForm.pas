@@ -24,7 +24,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
-  cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem;
+  cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem, System.Contnrs,
+  System.Generics.Collections;
 
 type
   TForm1 = class(TdxFluentDesignForm)
@@ -33,8 +34,13 @@ type
     MainPanel: TdxPanel;
     TodoScrollBox: TcxScrollBox;
     procedure AddTodoButtonClick(Sender: TObject);
+    procedure dxFluentDesignFormCreate(Sender: TObject);
+    procedure dxFluentDesignFormDestroy(Sender: TObject);
   private
     { Private declarations }
+    NumItems: integer;
+    TodoItemList: TObjectList<TFrame1>;
+
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure AddTodoItem(const HeaderText, NotesText: string);
   public
@@ -68,13 +74,30 @@ procedure TForm1.AddTodoItem(const HeaderText, NotesText: string);
 var
   NewItem: TFrame1;
 begin
-  NewItem := TFrame1.Create(TodoScrollBox); // Assuming ScrollBox1 is your TScrollBox
+  NewItem := TFrame1.Create(TodoScrollBox);
   NewItem.Parent := TodoScrollBox;
-  NewItem.LabelText.Caption := HeaderText; // Set the header text
-  NewItem.NotesEdit.Text := NotesText; // Set the notes text
-  NewItem.Top := TodoScrollBox.ControlCount * NewItem.Height; // Position the new item
+
+  NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
+  NumItems := NumItems + 1;
+
+  NewItem.LabelText.Caption := HeaderText;
+  NewItem.NotesEdit.Text := NotesText;
+  NewItem.Top := TodoItemList.Count * NewItem.Height; // Position the new item
   NewItem.Left := 0;
   NewItem.Visible := True;
+
+  TodoItemList.Add(NewItem); // Add the frame to the list
+end;
+
+procedure TForm1.dxFluentDesignFormCreate(Sender: TObject);
+begin
+  NumItems := 0;
+  TodoItemList := TObjectList<TFrame1>.Create(True); // True to own the objects and free them automatically
+end;
+
+procedure TForm1.dxFluentDesignFormDestroy(Sender: TObject);
+begin
+  TodoItemList.Free;
 end;
 
 end.

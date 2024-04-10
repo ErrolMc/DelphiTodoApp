@@ -12,6 +12,8 @@ object Form1: TForm1
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = dxFluentDesignFormCreate
+  OnDestroy = dxFluentDesignFormDestroy
   TextHeight = 15
   object MainPanel: TdxPanel
     Left = 0
