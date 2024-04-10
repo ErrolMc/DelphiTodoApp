@@ -67,6 +67,7 @@ object Form2: TForm2
       Height = 25
       Caption = 'Add'
       TabOrder = 4
+      OnClick = AddTodoButtonClick
     end
     object CancelButton: TcxButton
       Left = 192
@@ -75,6 +76,7 @@ object Form2: TForm2
       Height = 25
       Caption = 'Cancel'
       TabOrder = 5
+      OnClick = CancelButtonClick
     end
   end
 end

@@ -24,16 +24,19 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
-  cxGeometry, dxFramedControl, dxPanel;
+  cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem;
 
 type
   TForm1 = class(TdxFluentDesignForm)
     dxSkinController1: TdxSkinController;
     AddTodoButton: TcxButton;
     MainPanel: TdxPanel;
+    TodoScrollBox: TcxScrollBox;
     procedure AddTodoButtonClick(Sender: TObject);
   private
     { Private declarations }
+    procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
+    procedure AddTodoItem(const HeaderText, NotesText: string);
   public
     { Public declarations }
   end;
@@ -47,7 +50,31 @@ implementation
 
 procedure TForm1.AddTodoButtonClick(Sender: TObject);
 begin
-  Form2.ShowModal;
+  Form2 := TForm2.Create(nil);
+  try
+    Form2.OnTodoAdded := HandleTodoAdded;
+    Form2.ShowModal;
+  finally
+    Form2.Free;
+  end;
+end;
+
+procedure TForm1.HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
+begin
+  AddTodoItem(HeaderText, NotesText);
+end;
+
+procedure TForm1.AddTodoItem(const HeaderText, NotesText: string);
+var
+  NewItem: TFrame1;
+begin
+  NewItem := TFrame1.Create(TodoScrollBox); // Assuming ScrollBox1 is your TScrollBox
+  NewItem.Parent := TodoScrollBox;
+  NewItem.LabelText.Caption := HeaderText; // Set the header text
+  NewItem.NotesEdit.Text := NotesText; // Set the notes text
+  NewItem.Top := TodoScrollBox.ControlCount * NewItem.Height; // Position the new item
+  NewItem.Left := 0;
+  NewItem.Visible := True;
 end;
 
 end.

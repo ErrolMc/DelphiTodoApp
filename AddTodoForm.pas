@@ -25,6 +25,8 @@ uses
   dxFramedControl, cxTextEdit, dxPanel, cxMemo, Vcl.Menus, cxButtons;
 
 type
+  TTodoAddedEvent = procedure(Sender: TObject; const HeaderText, NotesText: String) of object;
+
   TForm2 = class(TForm)
     HeaderLabel: TcxLabel;
     MainPanel: TdxPanel;
@@ -33,10 +35,16 @@ type
     NotesLabel: TcxLabel;
     AddTodoButton: TcxButton;
     CancelButton: TcxButton;
+    procedure AddTodoButtonClick(Sender: TObject);
+    procedure CancelButtonClick(Sender: TObject);
+
+
   private
     { Private declarations }
+    FOnTodoAdded: TTodoAddedEvent;
   public
     { Public declarations }
+    property OnTodoAdded: TTodoAddedEvent read FOnTodoAdded write FOnTodoAdded;
   end;
 
 var
@@ -45,5 +53,17 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm2.AddTodoButtonClick(Sender: TObject);
+begin
+  if Assigned(FOnTodoAdded) then
+    FOnTodoAdded(Self, HeaderEdit.Text, NotesEdit.Text);
+  Close;
+end;
+
+procedure TForm2.CancelButtonClick(Sender: TObject);
+begin
+  Close;
+end;
 
 end.
