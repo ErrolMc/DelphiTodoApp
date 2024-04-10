@@ -27,7 +27,7 @@ uses
 type
   TTodoAddedEvent = procedure(Sender: TObject; const HeaderText, NotesText: String) of object;
 
-  TForm2 = class(TForm)
+  TAddTodoForm = class(TForm)
     HeaderLabel: TcxLabel;
     MainPanel: TdxPanel;
     HeaderEdit: TcxTextEdit;
@@ -48,20 +48,20 @@ type
   end;
 
 var
-  Form2: TForm2;
+  AddTodoFormInstance: TAddTodoForm;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm2.AddTodoButtonClick(Sender: TObject);
+procedure TAddTodoForm.AddTodoButtonClick(Sender: TObject);
 begin
   if Assigned(FOnTodoAdded) then
     FOnTodoAdded(Self, HeaderEdit.Text, NotesEdit.Text);
   Close;
 end;
 
-procedure TForm2.CancelButtonClick(Sender: TObject);
+procedure TAddTodoForm.CancelButtonClick(Sender: TObject);
 begin
   Close;
 end;

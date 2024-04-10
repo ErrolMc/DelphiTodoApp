@@ -2,16 +2,16 @@ program TodoApp;
 
 uses
   Vcl.Forms,
-  MainForm in 'MainForm.pas' {Form1: TdxFluentDesignForm},
-  AddTodoForm in 'AddTodoForm.pas' {Form2},
-  TodoItem in 'TodoItem.pas' {Frame1: TFrame};
+  MainForm in 'MainForm.pas' {MainForm: TdxFluentDesignForm},
+  AddTodoForm in 'AddTodoForm.pas' {AddTodoForm: TForm},
+  TodoItem in 'TodoItem.pas' {TodoItem: TFrame};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TForm1, Form1);
-  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TMainForm, MainFormInstance);
+  Application.CreateForm(TAddTodoForm, AddTodoFormInstance);
   Application.Run;
 end.

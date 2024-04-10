@@ -1,4 +1,4 @@
-object Form1: TForm1
+object MainForm: TMainForm
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
@@ -23,8 +23,6 @@ object Form1: TForm1
     Align = alClient
     Frame.Visible = False
     TabOrder = 0
-    ExplicitWidth = 400
-    ExplicitHeight = 636
     DesignSize = (
       355
       594)
@@ -46,8 +44,6 @@ object Form1: TForm1
       Color = 3222829
       ParentColor = False
       TabOrder = 1
-      ExplicitWidth = 369
-      ExplicitHeight = 553
     end
   end
   object dxSkinController1: TdxSkinController

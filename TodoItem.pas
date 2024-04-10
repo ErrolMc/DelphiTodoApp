@@ -26,7 +26,7 @@ uses
   cxButtons;
 
 type
-  TFrame1 = class(TFrame)
+  TTodoItem = class(TFrame)
     MainPanel: TdxPanel;
     CompletedCheckEdit: TcxCheckBox;
     LabelText: TcxLabel;

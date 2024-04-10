@@ -28,7 +28,7 @@ uses
   System.Generics.Collections;
 
 type
-  TForm1 = class(TdxFluentDesignForm)
+  TMainForm = class(TdxFluentDesignForm)
     dxSkinController1: TdxSkinController;
     AddTodoButton: TcxButton;
     MainPanel: TdxPanel;
@@ -39,7 +39,7 @@ type
   private
     { Private declarations }
     NumItems: integer;
-    TodoItemList: TObjectList<TFrame1>;
+    TodoItemList: TObjectList<TTodoItem>;
 
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure AddTodoItem(const HeaderText, NotesText: string);
@@ -48,33 +48,33 @@ type
   end;
 
 var
-  Form1: TForm1;
+  MainFormInstance: TMainForm;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.AddTodoButtonClick(Sender: TObject);
+procedure TMainForm.AddTodoButtonClick(Sender: TObject);
 begin
-  Form2 := TForm2.Create(nil);
+  AddTodoFormInstance := TAddTodoForm.Create(nil);
   try
-    Form2.OnTodoAdded := HandleTodoAdded;
-    Form2.ShowModal;
+    AddTodoFormInstance.OnTodoAdded := HandleTodoAdded;
+    AddTodoFormInstance.ShowModal;
   finally
-    Form2.Free;
+    AddTodoFormInstance.Free;
   end;
 end;
 
-procedure TForm1.HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
+procedure TMainForm.HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
 begin
   AddTodoItem(HeaderText, NotesText);
 end;
 
-procedure TForm1.AddTodoItem(const HeaderText, NotesText: string);
+procedure TMainForm.AddTodoItem(const HeaderText, NotesText: string);
 var
-  NewItem: TFrame1;
+  NewItem: TTodoItem;
 begin
-  NewItem := TFrame1.Create(TodoScrollBox);
+  NewItem := TTodoItem.Create(TodoScrollBox);
   NewItem.Parent := TodoScrollBox;
 
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
@@ -89,13 +89,13 @@ begin
   TodoItemList.Add(NewItem); // Add the frame to the list
 end;
 
-procedure TForm1.dxFluentDesignFormCreate(Sender: TObject);
+procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
 begin
   NumItems := 0;
-  TodoItemList := TObjectList<TFrame1>.Create(True); // True to own the objects and free them automatically
+  TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
 end;
 
-procedure TForm1.dxFluentDesignFormDestroy(Sender: TObject);
+procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
 begin
   TodoItemList.Free;
 end;

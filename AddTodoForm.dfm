@@ -1,4 +1,4 @@
-object Form2: TForm2
+object AddTodoForm: TAddTodoForm
   Left = 0
   Top = 0
   Caption = 'Add New Todo'
