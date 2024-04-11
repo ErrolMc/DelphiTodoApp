@@ -112,11 +112,14 @@ end;
 procedure TMainForm.DeleteTodoItemMessage(var Msg: TMessage);
 var
   Item: TTodoItem;
+  ItemIndex: Integer;
 begin
   Item := TTodoItem(Msg.WParam);
-  if Assigned(Item) then
+  ItemIndex := TodoItemList.IndexOf(Item);
+
+  if ItemIndex <> -1 then
   begin
-    TodoItemList.Remove(Item);
+    TodoItemList.Delete(ItemIndex);
   end;
 end;
 
