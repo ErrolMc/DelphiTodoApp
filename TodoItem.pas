@@ -33,11 +33,15 @@ type
     NotesEdit: TcxMemo;
     DeleteButton: TcxButton;
     procedure DeleteButtonClick(Sender: TObject);
+    procedure MainPanelMouseEnter(Sender: TObject);
+    procedure MainPanelMouseLeave(Sender: TObject);
+    procedure MainPanelClick(Sender: TObject);
   private
     { Private declarations }
     procedure SetExpandedState(State: Boolean);
   public
     { Public declarations }
+    Collapsed: Boolean;
     procedure OnShow();
   end;
 
@@ -53,6 +57,22 @@ begin
   PostMessage(Application.MainForm.Handle, WM_DELETE_TODO_ITEM, WPARAM(Self), 0);
 end;
 
+procedure TTodoItem.MainPanelClick(Sender: TObject);
+begin
+  SetExpandedState(not Collapsed);
+  PostMessage(Application.MainForm.Handle, WM_TOGGLE_EXPAND_TODO_ITEM, WPARAM(Self), 0);
+end;
+
+procedure TTodoItem.MainPanelMouseEnter(Sender: TObject);
+begin
+  MainPanel.Color := RGB(65, 65, 65);
+end;
+
+procedure TTodoItem.MainPanelMouseLeave(Sender: TObject);
+begin
+  MainPanel.Color := RGB(50, 50, 50);
+end;
+
 procedure TTodoItem.OnShow();
 begin
   SetExpandedState(True);
@@ -64,12 +84,19 @@ begin
     begin
       Self.Height	:= 170;
       NotesEdit.Show();
+
+      Self.Refresh();
+      MainPanel.Refresh();
+      NotesEdit.Refresh();
     end
   else
     begin
       Self.Height	:= 40;
       NotesEdit.Hide();
+      NotesEdit.Refresh();
     end;
+
+  Collapsed := State;
 end;
 
 end.

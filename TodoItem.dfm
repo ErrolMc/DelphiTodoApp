@@ -13,7 +13,9 @@ object TodoItem: TTodoItem
     Frame.Visible = False
     Color = 3289650
     TabOrder = 0
-    ExplicitHeight = 176
+    OnClick = MainPanelClick
+    OnMouseEnter = MainPanelMouseEnter
+    OnMouseLeave = MainPanelMouseLeave
     DesignSize = (
       254
       170)
@@ -42,8 +44,7 @@ object TodoItem: TTodoItem
       Top = 39
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 2
-      ExplicitHeight = 122
-      Height = 116
+      Height = 114
       Width = 193
     end
     object DeleteButton: TcxButton

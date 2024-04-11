@@ -43,6 +43,7 @@ type
 
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
+    procedure ToggleExpandTodoItemMessage(var Msg: TMessage); message WM_TOGGLE_EXPAND_TODO_ITEM;
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure UpdateTodoItemPositions();
   public
@@ -130,6 +131,11 @@ begin
     TodoItemList.Delete(ItemIndex);
     UpdateTodoItemPositions();
   end;
+end;
+
+procedure TMainForm.ToggleExpandTodoItemMessage(var Msg: TMessage);
+begin
+  UpdateTodoItemPositions();
 end;
 
 procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
