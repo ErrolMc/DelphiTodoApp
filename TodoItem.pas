@@ -23,7 +23,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, cxGeometry, dxFramedControl, dxPanel, Vcl.StdCtrls,
   cxContainer, cxEdit, cxCheckBox, cxLabel, cxTextEdit, cxMemo, Vcl.Menus,
-  cxButtons, CommonUnit;
+  cxButtons, CommonUnit, TodoItemData;
 
 type
   TTodoItem = class(TFrame)
@@ -42,6 +42,7 @@ type
   public
     { Public declarations }
     Collapsed: Boolean;
+    ItemData: TTodoItemData;
     procedure OnShow();
   end;
 

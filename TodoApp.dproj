@@ -139,6 +139,8 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="CommonUnit.pas"/>
+        <DCCReference Include="TodoItemData.pas"/>
+        <DCCReference Include="TodoItemDataList.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -25,7 +25,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
   cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem, System.Contnrs,
-  System.Generics.Collections, CommonUnit;
+  System.Generics.Collections, CommonUnit, TodoItemData, TodoItemDataList;
 
 type
   TMainForm = class(TdxFluentDesignForm)
@@ -40,6 +40,7 @@ type
     { Private declarations }
     NumItems: integer;
     TodoItemList: TObjectList<TTodoItem>;
+    TodoItemData: TTodoItemDataList;
 
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
@@ -79,7 +80,10 @@ var
   ItemSpacing: Integer;
   NewTop: Integer;
   Padding: Integer;
+  ItemData: TTodoItemData;
 begin
+  itemData := TodoItemData.AddTodoItem(HeaderText, NotesText);
+
   NewItem := TTodoItem.Create(TodoScrollBox);
   NewItem.Parent := TodoScrollBox;
 
@@ -101,6 +105,7 @@ begin
   NewItem.Left := Padding;
   NewItem.Visible := True;
   NewItem.Width := TodoScrollBox.Width - (Padding * 3);
+  NewItem.ItemData := itemData;
 
   NewItem.OnShow();
 
@@ -111,6 +116,7 @@ procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
 begin
   NumItems := 0;
   TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
+  TodoItemData := TTodoItemDataList.Create();
 
   AddTodoItem('A', 'A Message');
   AddTodoItem('B', 'B Message');
@@ -128,6 +134,9 @@ begin
 
   if ItemIndex <> -1 then
   begin
+    if Item.ItemData <> nil then
+      TodoItemData.RemoveTodoItem(Item.ItemData);
+
     TodoItemList.Delete(ItemIndex);
     UpdateTodoItemPositions();
   end;
@@ -141,6 +150,7 @@ end;
 procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
 begin
   TodoItemList.Free;
+  TodoItemData.Free;
 end;
 
 procedure TMainForm.UpdateTodoItemPositions();
