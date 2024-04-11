@@ -23,7 +23,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, cxGeometry, dxFramedControl, dxPanel, Vcl.StdCtrls,
   cxContainer, cxEdit, cxCheckBox, cxLabel, cxTextEdit, cxMemo, Vcl.Menus,
-  cxButtons;
+  cxButtons, CommonUnit;
 
 type
   TTodoItem = class(TFrame)
@@ -32,6 +32,7 @@ type
     LabelText: TcxLabel;
     NotesEdit: TcxMemo;
     DeleteButton: TcxButton;
+    procedure DeleteButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,5 +42,13 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TTodoItem.DeleteButtonClick(Sender: TObject);
+begin
+  // Have to use postmessage and not an event because there was a null when using an event.
+  // Probably because the delete was triggered on button press but on button up behind the scenes
+  // it was trying to access the deleted item. Using postmessage gets around this somehow.
+  PostMessage(Application.MainForm.Handle, WM_DELETE_TODO_ITEM, WPARAM(Self), 0);
+end;
 
 end.

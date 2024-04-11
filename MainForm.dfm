@@ -42,6 +42,7 @@ object MainForm: TMainForm
       Height = 511
       Anchors = [akLeft, akTop, akRight, akBottom]
       Color = 3222829
+      HorzScrollBar.Visible = False
       ParentColor = False
       TabOrder = 1
     end

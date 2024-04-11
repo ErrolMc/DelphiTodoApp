@@ -11,6 +11,7 @@ object TodoItem: TTodoItem
     Height = 176
     Align = alClient
     Frame.Visible = False
+    Color = 3289650
     TabOrder = 0
     DesignSize = (
       254
@@ -22,7 +23,7 @@ object TodoItem: TTodoItem
       TabOrder = 0
     end
     object LabelText: TcxLabel
-      Left = 40
+      Left = 32
       Top = 8
       Caption = 'blank'
       ParentFont = False
@@ -36,21 +37,22 @@ object TodoItem: TTodoItem
       Style.IsFontAssigned = True
     end
     object NotesEdit: TcxMemo
-      Left = 40
+      Left = 32
       Top = 39
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       Height = 122
-      Width = 198
+      Width = 193
     end
     object DeleteButton: TcxButton
-      Left = 213
+      Left = 200
       Top = 8
       Width = 25
       Height = 25
       Anchors = [akTop, akRight]
       Caption = 'X'
       TabOrder = 3
+      OnClick = DeleteButtonClick
     end
   end
 end

@@ -25,7 +25,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
   cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem, System.Contnrs,
-  System.Generics.Collections;
+  System.Generics.Collections, CommonUnit;
 
 type
   TMainForm = class(TdxFluentDesignForm)
@@ -42,6 +42,7 @@ type
     TodoItemList: TObjectList<TTodoItem>;
 
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
+    procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
     procedure AddTodoItem(const HeaderText, NotesText: string);
   public
     { Public declarations }
@@ -73,6 +74,9 @@ end;
 procedure TMainForm.AddTodoItem(const HeaderText, NotesText: string);
 var
   NewItem: TTodoItem;
+  ItemSpacing: Integer;
+  NewTop: Integer;
+  Padding: Integer;
 begin
   NewItem := TTodoItem.Create(TodoScrollBox);
   NewItem.Parent := TodoScrollBox;
@@ -80,19 +84,40 @@ begin
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
   NumItems := NumItems + 1;
 
+  ItemSpacing := 10;
+  Padding := 5;
+
+  if TodoItemList.Count = 0 then
+    NewTop := Padding
+  else
+    NewTop := TodoItemList.Last.Top + TodoItemList.Last.Height + ItemSpacing;
+
+  NewItem.Top := NewTop;
+
   NewItem.LabelText.Caption := HeaderText;
   NewItem.NotesEdit.Text := NotesText;
-  NewItem.Top := TodoItemList.Count * NewItem.Height; // Position the new item
-  NewItem.Left := 0;
+  NewItem.Left := Padding;
   NewItem.Visible := True;
+  NewItem.Width := TodoScrollBox.Width - (Padding * 3);
 
-  TodoItemList.Add(NewItem); // Add the frame to the list
+  TodoItemList.Add(NewItem);
 end;
 
 procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
 begin
   NumItems := 0;
   TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
+end;
+
+procedure TMainForm.DeleteTodoItemMessage(var Msg: TMessage);
+var
+  Item: TTodoItem;
+begin
+  Item := TTodoItem(Msg.WParam);
+  if Assigned(Item) then
+  begin
+    TodoItemList.Remove(Item);
+  end;
 end;
 
 procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
