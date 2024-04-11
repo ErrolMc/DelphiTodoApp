@@ -2,20 +2,21 @@ object TodoItem: TTodoItem
   Left = 0
   Top = 0
   Width = 254
-  Height = 176
+  Height = 170
   TabOrder = 0
   object MainPanel: TdxPanel
     Left = 0
     Top = 0
     Width = 254
-    Height = 176
+    Height = 170
     Align = alClient
     Frame.Visible = False
     Color = 3289650
     TabOrder = 0
+    ExplicitHeight = 176
     DesignSize = (
       254
-      176)
+      170)
     object CompletedCheckEdit: TcxCheckBox
       Left = 11
       Top = 11
@@ -39,9 +40,10 @@ object TodoItem: TTodoItem
     object NotesEdit: TcxMemo
       Left = 32
       Top = 39
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 2
-      Height = 122
+      ExplicitHeight = 122
+      Height = 116
       Width = 193
     end
     object DeleteButton: TcxButton

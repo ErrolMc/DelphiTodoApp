@@ -35,8 +35,10 @@ type
     procedure DeleteButtonClick(Sender: TObject);
   private
     { Private declarations }
+    procedure SetExpandedState(State: Boolean);
   public
     { Public declarations }
+    procedure OnShow();
   end;
 
 implementation
@@ -49,6 +51,25 @@ begin
   // Probably because the delete was triggered on button press but on button up behind the scenes
   // it was trying to access the deleted item. Using postmessage gets around this somehow.
   PostMessage(Application.MainForm.Handle, WM_DELETE_TODO_ITEM, WPARAM(Self), 0);
+end;
+
+procedure TTodoItem.OnShow();
+begin
+  SetExpandedState(True);
+end;
+
+procedure TTodoItem.SetExpandedState(State: Boolean);
+begin
+  if State then
+    begin
+      Self.Height	:= 170;
+      NotesEdit.Show();
+    end
+  else
+    begin
+      Self.Height	:= 40;
+      NotesEdit.Hide();
+    end;
 end;
 
 end.

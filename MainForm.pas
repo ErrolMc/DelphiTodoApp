@@ -44,6 +44,7 @@ type
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
     procedure AddTodoItem(const HeaderText, NotesText: string);
+    procedure UpdateTodoItemPositions();
   public
     { Public declarations }
   end;
@@ -100,6 +101,8 @@ begin
   NewItem.Visible := True;
   NewItem.Width := TodoScrollBox.Width - (Padding * 3);
 
+  NewItem.OnShow();
+
   TodoItemList.Add(NewItem);
 end;
 
@@ -107,6 +110,11 @@ procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
 begin
   NumItems := 0;
   TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
+
+  AddTodoItem('A', 'A Message');
+  AddTodoItem('B', 'B Message');
+  AddTodoItem('C', 'C Message');
+  AddTodoItem('D', 'D Message');
 end;
 
 procedure TMainForm.DeleteTodoItemMessage(var Msg: TMessage);
@@ -120,12 +128,36 @@ begin
   if ItemIndex <> -1 then
   begin
     TodoItemList.Delete(ItemIndex);
+    UpdateTodoItemPositions();
   end;
 end;
 
 procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
 begin
   TodoItemList.Free;
+end;
+
+procedure TMainForm.UpdateTodoItemPositions();
+var
+  I: Integer;
+  NewTop: Integer;
+  ItemSpacing, Padding: Integer;
+begin
+  ItemSpacing := 10; // The space between items
+  Padding := 5; // Top padding for the first item
+  NewTop := Padding;
+
+  TodoScrollBox.VertScrollBar.Position := 0; // for now reset the scroll bar position to avoid gap issues
+
+  for I := 0 to TodoItemList.Count - 1 do
+  begin
+    with TodoItemList[I] do
+    begin
+      Top := NewTop;
+      // Increase NewTop for the next item
+      Inc(NewTop, Height + ItemSpacing);
+    end;
+  end;
 end;
 
 end.
