@@ -45,6 +45,7 @@ type
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
     procedure ToggleExpandTodoItemMessage(var Msg: TMessage); message WM_TOGGLE_EXPAND_TODO_ITEM;
+    procedure SaveTodoItemsMessage(var Msg: TMessage); message WM_SAVE_TODO_ITEMS;
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure SpawnTodoItem(ItemData: TTodoItemData);
     procedure UpdateTodoItemPositions();
@@ -107,6 +108,9 @@ begin
     Exit();
 
   NewItem := TTodoItem.Create(TodoScrollBox);
+  NewItem.ItemData := ItemData;
+  NewItem.NoNotify := True;	
+
   NewItem.Parent := TodoScrollBox;
 
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
@@ -124,11 +128,12 @@ begin
 
   NewItem.LabelText.Caption := ItemData.Header;
   NewItem.NotesEdit.Text := ItemData.Notes;
+  NewItem.CompletedCheckEdit.Checked := ItemData.Completed;			
   NewItem.Left := Padding;
   NewItem.Visible := True;
   NewItem.Width := TodoScrollBox.Width - (Padding * 3);
-  NewItem.ItemData := ItemData;
-
+  
+  NewItem.NoNotify := False;	
   NewItem.OnShow();
 
   TodoItemList.Add(NewItem);
@@ -158,6 +163,11 @@ end;
 procedure TMainForm.ToggleExpandTodoItemMessage(var Msg: TMessage);
 begin
   UpdateTodoItemPositions();
+end;
+
+procedure TMainForm.SaveTodoItemsMessage(var Msg: TMessage);
+begin
+  TodoItemData.SaveToFile('TodoItems.json');
 end;
 
 procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);

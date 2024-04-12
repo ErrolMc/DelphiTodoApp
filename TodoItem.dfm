@@ -24,6 +24,7 @@ object TodoItem: TTodoItem
       Top = 11
       Style.TransparentBorder = False
       TabOrder = 0
+      OnClick = CompletedCheckEditClick
     end
     object LabelText: TcxLabel
       Left = 32

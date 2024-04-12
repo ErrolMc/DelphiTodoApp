@@ -36,11 +36,13 @@ type
     procedure MainPanelMouseEnter(Sender: TObject);
     procedure MainPanelMouseLeave(Sender: TObject);
     procedure MainPanelClick(Sender: TObject);
+    procedure CompletedCheckEditClick(Sender: TObject);
   private
     { Private declarations }
     procedure SetExpandedState(State: Boolean);
   public
     { Public declarations }
+    NoNotify: Boolean;
     Collapsed: Boolean;
     ItemData: TTodoItemData;
     procedure OnShow();
@@ -49,6 +51,26 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TTodoItem.CompletedCheckEditClick(Sender: TObject);
+var
+  CheckBox: TcxCheckBox;
+begin
+  if NoNotify then
+     Exit();
+
+  CheckBox := Sender as TcxCheckBox;
+  if CheckBox.Checked then
+  begin
+    ItemData.Completed := true;
+  end
+  else
+  begin
+    ItemData.Completed := false;
+  end;
+
+  PostMessage(Application.MainForm.Handle, WM_SAVE_TODO_ITEMS, WPARAM(Self), 0);
+end;
 
 procedure TTodoItem.DeleteButtonClick(Sender: TObject);
 begin
