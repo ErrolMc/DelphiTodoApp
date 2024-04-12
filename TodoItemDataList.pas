@@ -17,9 +17,11 @@ type
 
   TTodoItemDataList = class
   private
+
+  public
     FTodoItems: TObjectList<TTodoItemData>;
     FCompletedItems: TObjectList<TTodoItemData>;
-  public
+
     constructor Create;
     destructor Destroy; override;
     function AddTodoItem(Header, Notes: string): TTodoItemData; overload;
@@ -29,6 +31,9 @@ type
     function RemoveCompletedItem(Item: TTodoItemData): Boolean;
     function Serialize: string;
     procedure Deserialize(const AJsonStr: string);
+
+    procedure SaveToFile(const FileName: string);
+    procedure LoadFromFile(const FileName: string);
   end;
 
 implementation
@@ -36,8 +41,8 @@ implementation
 constructor TTodoItemsWrapper.Create;
 begin
   inherited Create;
-  TodoItems := TObjectList<TTodoItemData>.Create(True);
-  CompletedItems := TObjectList<TTodoItemData>.Create(True);
+  TodoItems := TObjectList<TTodoItemData>.Create(False);
+  CompletedItems := TObjectList<TTodoItemData>.Create(False);
 end;
 
 destructor TTodoItemsWrapper.Destroy;
@@ -120,16 +125,50 @@ begin
   try
     Wrapper := Serializer.Deserialize<TTodoItemsWrapper>(AJsonStr);
     try
-      FTodoItems.Clear;
+      FTodoItems.Clear();
       FTodoItems.AddRange(Wrapper.TodoItems);
 
-      FCompletedItems.Clear;
+      FCompletedItems.Clear();
       FCompletedItems.AddRange(Wrapper.CompletedItems);
     finally
-      Wrapper.Free;
+      Wrapper.Free();
     end;
   finally
-    Serializer.Free;
+    Serializer.Free();
+  end;
+end;
+
+procedure TTodoItemDataList.SaveToFile(const FileName: string);
+var
+  JSONString: string;
+  StringList: TStringList;
+begin
+  JSONString := Serialize();
+  StringList := TStringList.Create;
+  try
+    StringList.Text := JSONString;
+    StringList.SaveToFile(FileName);
+  finally
+    StringList.Free();
+  end;
+end;
+
+procedure TTodoItemDataList.LoadFromFile(const FileName: string);
+var
+  JSONString: string;
+  FileStream: TFileStream;
+  StringList: TStringList;
+begin
+  if FileExists(FileName) then
+  begin
+    StringList := TStringList.Create;
+    try
+      StringList.LoadFromFile(FileName);
+      JSONString := StringList.Text;
+      Deserialize(JSONString);
+    finally
+      StringList.Free();
+    end;
   end;
 end;
 

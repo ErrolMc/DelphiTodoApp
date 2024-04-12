@@ -46,6 +46,7 @@ type
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
     procedure ToggleExpandTodoItemMessage(var Msg: TMessage); message WM_TOGGLE_EXPAND_TODO_ITEM;
     procedure AddTodoItem(const HeaderText, NotesText: string);
+    procedure SpawnTodoItem(ItemData: TTodoItemData);
     procedure UpdateTodoItemPositions();
   public
     { Public declarations }
@@ -58,14 +59,24 @@ implementation
 
 {$R *.dfm}
 
-procedure TMainForm.AddTodoButtonClick(Sender: TObject);
+procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
+var
+  LoadedItem: TTodoItemData;
 begin
-  AddTodoFormInstance := TAddTodoForm.Create(nil);
-  try
-    AddTodoFormInstance.OnTodoAdded := HandleTodoAdded;
-    AddTodoFormInstance.ShowModal;
-  finally
-    AddTodoFormInstance.Free;
+  NumItems := 0;
+  TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
+  TodoItemData := TTodoItemDataList.Create();
+  TodoItemData.LoadFromFile('TodoItems.json');
+
+  // Spawn TodoItem controls for each loaded item
+  for LoadedItem in TodoItemData.FTodoItems do
+  begin
+    SpawnTodoItem(LoadedItem);
+  end;
+
+  for LoadedItem in TodoItemData.FCompletedItems do
+  begin
+    SpawnTodoItem(LoadedItem);
   end;
 end;
 
@@ -76,13 +87,24 @@ end;
 
 procedure TMainForm.AddTodoItem(const HeaderText, NotesText: string);
 var
+  ItemData: TTodoItemData;
+begin
+  ItemData := TodoItemData.AddTodoItem(HeaderText, NotesText);
+  TodoItemData.SaveToFile('TodoItems.json');
+
+  SpawnTodoItem(ItemData);
+end;
+
+procedure TMainForm.SpawnTodoItem(ItemData: TTodoItemData);
+var
   NewItem: TTodoItem;
   ItemSpacing: Integer;
   NewTop: Integer;
   Padding: Integer;
-  ItemData: TTodoItemData;
 begin
-  itemData := TodoItemData.AddTodoItem(HeaderText, NotesText);
+
+  if Assigned(ItemData) = false then
+    Exit();
 
   NewItem := TTodoItem.Create(TodoScrollBox);
   NewItem.Parent := TodoScrollBox;
@@ -100,28 +122,16 @@ begin
 
   NewItem.Top := NewTop;
 
-  NewItem.LabelText.Caption := HeaderText;
-  NewItem.NotesEdit.Text := NotesText;
+  NewItem.LabelText.Caption := ItemData.Header;
+  NewItem.NotesEdit.Text := ItemData.Notes;
   NewItem.Left := Padding;
   NewItem.Visible := True;
   NewItem.Width := TodoScrollBox.Width - (Padding * 3);
-  NewItem.ItemData := itemData;
+  NewItem.ItemData := ItemData;
 
   NewItem.OnShow();
 
   TodoItemList.Add(NewItem);
-end;
-
-procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
-begin
-  NumItems := 0;
-  TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
-  TodoItemData := TTodoItemDataList.Create();
-
-  AddTodoItem('A', 'A Message');
-  AddTodoItem('B', 'B Message');
-  AddTodoItem('C', 'C Message');
-  AddTodoItem('D', 'D Message');
 end;
 
 procedure TMainForm.DeleteTodoItemMessage(var Msg: TMessage);
@@ -135,7 +145,10 @@ begin
   if ItemIndex <> -1 then
   begin
     if Item.ItemData <> nil then
-      TodoItemData.RemoveTodoItem(Item.ItemData);
+      begin
+        TodoItemData.RemoveTodoItem(Item.ItemData);
+        TodoItemData.SaveToFile('TodoItems.json');
+      end;
 
     TodoItemList.Delete(ItemIndex);
     UpdateTodoItemPositions();
@@ -173,6 +186,17 @@ begin
       // Increase NewTop for the next item
       Inc(NewTop, Height + ItemSpacing);
     end;
+  end;
+end;
+
+procedure TMainForm.AddTodoButtonClick(Sender: TObject);
+begin
+  AddTodoFormInstance := TAddTodoForm.Create(nil);
+  try
+    AddTodoFormInstance.OnTodoAdded := HandleTodoAdded;
+    AddTodoFormInstance.ShowModal;
+  finally
+    AddTodoFormInstance.Free;
   end;
 end;
 
