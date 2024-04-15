@@ -25,7 +25,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
   cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem, System.Contnrs,
-  System.Generics.Collections, CommonUnit, TodoItemData, TodoItemDataList;
+  System.Generics.Collections, CommonUnit, TodoItemData, TodoItemDataList,
+  cxLabel;
 
 type
   TMainForm = class(TdxFluentDesignForm)
@@ -33,6 +34,8 @@ type
     AddTodoButton: TcxButton;
     MainPanel: TdxPanel;
     TodoScrollBox: TcxScrollBox;
+    dxNavBar1: TdxNavBar;
+    cxLabel1: TcxLabel;
     procedure AddTodoButtonClick(Sender: TObject);
     procedure dxFluentDesignFormCreate(Sender: TObject);
     procedure dxFluentDesignFormDestroy(Sender: TObject);
@@ -103,7 +106,6 @@ var
   NewTop: Integer;
   Padding: Integer;
 begin
-
   if Assigned(ItemData) = false then
     Exit();
 
