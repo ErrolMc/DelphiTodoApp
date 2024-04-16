@@ -33,9 +33,11 @@ type
     dxSkinController1: TdxSkinController;
     AddTodoButton: TcxButton;
     MainPanel: TdxPanel;
-    TodoScrollBox: TcxScrollBox;
     dxNavBar1: TdxNavBar;
     cxLabel1: TcxLabel;
+    ScrollerControlGroup_Root: TdxLayoutGroup;
+    ScrollerControl: TdxLayoutControl;
+    ScrollerPanelParent: TdxPanel;
     procedure AddTodoButtonClick(Sender: TObject);
     procedure dxFluentDesignFormCreate(Sender: TObject);
     procedure dxFluentDesignFormDestroy(Sender: TObject);
@@ -52,7 +54,6 @@ type
     procedure SaveTodoItemsMessage(var Msg: TMessage); message WM_SAVE_TODO_ITEMS;
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure SpawnTodoItem(ItemData: TTodoItemData);
-    procedure UpdateTodoItemPositions();
   public
     { Public declarations }
   end;
@@ -67,6 +68,7 @@ implementation
 procedure TMainForm.dxFluentDesignFormCreate(Sender: TObject);
 var
   LoadedItem: TTodoItemData;
+  SpacerLayoutItem: TdxLayoutItem;
 begin
   NumItems := 0;
   TodoItemList := TObjectList<TFrame>.Create(True); // True to own the objects and free them automatically
@@ -80,12 +82,11 @@ begin
   end;
 
   // spawn spacer
-  Spacer := TCompletedSpacerControl.Create(TodoScrollBox);
-  Spacer.Parent := TodoScrollBox;
-  Spacer.Top := TodoItemList.Last.Top + TodoItemList.Last.Height + 15;
-  Spacer.Left	:= 5;
+  Spacer := TCompletedSpacerControl.Create(ScrollerControl);
   Spacer.Visible := True;
   Spacer.SetExpanded(true);
+  SpacerLayoutItem := ScrollerControlGroup_Root.CreateItemForControl(Spacer);
+
   TodoItemList.Add(Spacer);
 
   // spawn completed items
@@ -113,39 +114,28 @@ end;
 procedure TMainForm.SpawnTodoItem(ItemData: TTodoItemData);
 var
   NewItem: TTodoItem;
-  ItemSpacing: Integer;
-  NewTop: Integer;
-  Padding: Integer;
+  LayoutItem: TdxLayoutItem;
 begin
   if Assigned(ItemData) = false then
     Exit();
 
-  NewItem := TTodoItem.Create(TodoScrollBox);
+  NewItem := TTodoItem.Create(ScrollerControl);
   NewItem.ItemData := ItemData;
-  NewItem.NoNotify := True;	
-
-  NewItem.Parent := TodoScrollBox;
+  NewItem.NoNotify := True;
 
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
   NumItems := NumItems + 1;
 
-  ItemSpacing := 10;
-  Padding := 5;
-
-  if TodoItemList.Count = 0 then
-    NewTop := Padding
-  else
-    NewTop := TodoItemList.Last.Top + TodoItemList.Last.Height + ItemSpacing;
-
-  NewItem.Top := NewTop;
-
   NewItem.LabelText.Caption := ItemData.Header;
   NewItem.NotesEdit.Text := ItemData.Notes;
-  NewItem.CompletedCheckEdit.Checked := ItemData.Completed;			
-  NewItem.Left := Padding;
+  NewItem.CompletedCheckEdit.Checked := ItemData.Completed;
   NewItem.Visible := True;
-  NewItem.Width := TodoScrollBox.Width - (Padding * 3);
-  
+
+  NewItem.Width := ScrollerControl.ClientWidth - 25;
+
+  LayoutItem := ScrollerControlGroup_Root.CreateItemForControl(NewItem);
+
+  NewItem.Visible := True;
   NewItem.NoNotify := False;	
   NewItem.OnShow();
 
@@ -169,13 +159,12 @@ begin
       end;
 
     TodoItemList.Delete(ItemIndex);
-    UpdateTodoItemPositions();
   end;
 end;
 
 procedure TMainForm.ToggleExpandTodoItemMessage(var Msg: TMessage);
 begin
-  UpdateTodoItemPositions();
+  Exit();
 end;
 
 procedure TMainForm.SaveTodoItemsMessage(var Msg: TMessage);
@@ -187,29 +176,6 @@ procedure TMainForm.dxFluentDesignFormDestroy(Sender: TObject);
 begin
   TodoItemList.Free;
   TodoItemData.Free;
-end;
-
-procedure TMainForm.UpdateTodoItemPositions();
-var
-  I: Integer;
-  NewTop: Integer;
-  ItemSpacing, Padding: Integer;
-begin
-  ItemSpacing := 10; // The space between items
-  Padding := 5; // Top padding for the first item
-  NewTop := Padding;
-
-  TodoScrollBox.VertScrollBar.Position := 0; // for now reset the scroll bar position to avoid gap issues
-
-  for I := 0 to TodoItemList.Count - 1 do
-  begin
-    with TodoItemList[I] do
-    begin
-      Top := NewTop;
-      // Increase NewTop for the next item
-      Inc(NewTop, Height + ItemSpacing);
-    end;
-  end;
 end;
 
 procedure TMainForm.AddTodoButtonClick(Sender: TObject);

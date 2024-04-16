@@ -60,14 +60,7 @@ begin
      Exit();
 
   CheckBox := Sender as TcxCheckBox;
-  if CheckBox.Checked then
-  begin
-    ItemData.Completed := true;
-  end
-  else
-  begin
-    ItemData.Completed := false;
-  end;
+  ItemData.Completed := CheckBox.Checked;
 
   PostMessage(Application.MainForm.Handle, WM_SAVE_TODO_ITEMS, WPARAM(Self), 0);
 end;

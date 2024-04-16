@@ -42,20 +42,6 @@ object MainForm: TMainForm
       TabOrder = 0
       OnClick = AddTodoButtonClick
     end
-    object TodoScrollBox: TcxScrollBox
-      Left = 10
-      Top = 112
-      Width = 418
-      Height = 482
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
-      Color = 3222829
-      HorzScrollBar.Visible = False
-      ParentColor = False
-      TabOrder = 1
-    end
     object dxNavBar1: TdxNavBar
       AlignWithMargins = True
       Left = 5
@@ -69,7 +55,7 @@ object MainForm: TMainForm
       Align = alLeft
       Ctl3D = False
       ActiveGroupIndex = -1
-      TabOrder = 2
+      TabOrder = 1
       LookAndFeel.NativeStyle = False
       LookAndFeelSchemes.Flat = 21
       LookAndFeelSchemes.Skin = 21
@@ -95,6 +81,31 @@ object MainForm: TMainForm
       Style.Font.Name = 'Segoe UI'
       Style.Font.Style = [fsBold]
       Style.IsFontAssigned = True
+    end
+    object ScrollerPanelParent: TdxPanel
+      Left = 10
+      Top = 112
+      Width = 418
+      Height = 482
+      TabOrder = 3
+      object ScrollerControl: TdxLayoutControl
+        Left = 0
+        Top = 0
+        Width = 416
+        Height = 480
+        Align = alClient
+        ParentBackground = True
+        TabOrder = 0
+        Transparent = True
+        OptionsItem.SizableHorz = True
+        object ScrollerControlGroup_Root: TdxLayoutGroup
+          AlignHorz = ahLeft
+          AlignVert = avTop
+          Hidden = True
+          ShowBorder = False
+          Index = -1
+        end
+      end
     end
   end
   object dxSkinController1: TdxSkinController

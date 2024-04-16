@@ -1,7 +1,7 @@
 object CompletedSpacerControl: TCompletedSpacerControl
   Left = 0
   Top = 0
-  Width = 179
+  Width = 251
   Height = 36
   TabOrder = 0
   object MainPanel: TdxPanel
@@ -9,7 +9,6 @@ object CompletedSpacerControl: TCompletedSpacerControl
     Top = 0
     Width = 179
     Height = 36
-    Align = alClient
     Frame.Visible = False
     Color = 3289650
     TabOrder = 0
@@ -236,7 +235,6 @@ object CompletedSpacerControl: TCompletedSpacerControl
       Properties.ShowFocusRect = False
       ShowHint = False
       Style.BorderStyle = ebsNone
-      Style.Color = 3289650
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -12
