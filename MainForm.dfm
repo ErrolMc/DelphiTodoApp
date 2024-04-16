@@ -67,8 +67,7 @@ object MainForm: TMainForm
       Margins.Right = 5
       Margins.Bottom = 5
       Align = alLeft
-      Color = clDarkslategray
-      Ctl3D = True
+      Ctl3D = False
       ActiveGroupIndex = -1
       TabOrder = 2
       LookAndFeel.NativeStyle = False
@@ -81,12 +80,13 @@ object MainForm: TMainForm
       OptionsBehavior.HamburgerMenu.Collapsed = True
       OptionsBehavior.HamburgerMenu.DisplayMode = dmOverlayMinimal
       OptionsBehavior.NavigationPane.AllowCustomizing = False
-      OriginalWidth = 153
+      OptionsBehavior.NavigationPane.ShowOverflowPanelHints = False
+      OriginalWidth = 148
       OriginalHeight = 594
     end
     object cxLabel1: TcxLabel
-      Left = 5
-      Top = 56
+      Left = 10
+      Top = 48
       Caption = 'All Todos'
       ParentFont = False
       Style.Font.Charset = DEFAULT_CHARSET

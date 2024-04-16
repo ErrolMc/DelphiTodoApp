@@ -26,7 +26,7 @@ uses
   dxSkinXmas2008Blue, dxCore, Vcl.Menus, Vcl.StdCtrls, cxButtons, AddTodoForm,
   cxGeometry, dxFramedControl, dxPanel, cxScrollBox, TodoItem, System.Contnrs,
   System.Generics.Collections, CommonUnit, TodoItemData, TodoItemDataList,
-  cxLabel;
+  cxLabel, CompletedSpacerControl;
 
 type
   TMainForm = class(TdxFluentDesignForm)
@@ -42,8 +42,9 @@ type
   private
     { Private declarations }
     NumItems: integer;
-    TodoItemList: TObjectList<TTodoItem>;
+    TodoItemList: TObjectList<TFrame>;
     TodoItemData: TTodoItemDataList;
+    Spacer: TCompletedSpacerControl;
 
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
@@ -68,7 +69,7 @@ var
   LoadedItem: TTodoItemData;
 begin
   NumItems := 0;
-  TodoItemList := TObjectList<TTodoItem>.Create(True); // True to own the objects and free them automatically
+  TodoItemList := TObjectList<TFrame>.Create(True); // True to own the objects and free them automatically
   TodoItemData := TTodoItemDataList.Create();
   TodoItemData.LoadFromFile('TodoItems.json');
 
@@ -78,6 +79,16 @@ begin
     SpawnTodoItem(LoadedItem);
   end;
 
+  // spawn spacer
+  Spacer := TCompletedSpacerControl.Create(TodoScrollBox);
+  Spacer.Parent := TodoScrollBox;
+  Spacer.Top := TodoItemList.Last.Top + TodoItemList.Last.Height + 15;
+  Spacer.Left	:= 5;
+  Spacer.Visible := True;
+  Spacer.SetExpanded(true);
+  TodoItemList.Add(Spacer);
+
+  // spawn completed items
   for LoadedItem in TodoItemData.FCompletedItems do
   begin
     SpawnTodoItem(LoadedItem);
