@@ -55,8 +55,8 @@ end;
 constructor TTodoItemDataList.Create;
 begin
   inherited Create;
-  FTodoItems := TObjectList<TTodoItemData>.Create(True);
-  FCompletedItems := TObjectList<TTodoItemData>.Create(True);
+  FTodoItems := TObjectList<TTodoItemData>.Create(False);
+  FCompletedItems := TObjectList<TTodoItemData>.Create(False);
 end;
 
 destructor TTodoItemDataList.Destroy;

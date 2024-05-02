@@ -52,6 +52,8 @@ type
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
     procedure ToggleExpandTodoItemMessage(var Msg: TMessage); message WM_TOGGLE_EXPAND_TODO_ITEM;
     procedure SaveTodoItemsMessage(var Msg: TMessage); message WM_SAVE_TODO_ITEMS;
+    procedure ChangeTodoItemCompletedMessage(var Msg: TMessage); message WM_CHANGE_TODO_COMPLETED;
+    procedure SaveTodoItems();
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure SpawnTodoItem(ItemData: TTodoItemData);
   public
@@ -154,12 +156,51 @@ begin
   begin
     if Item.ItemData <> nil then
       begin
-        TodoItemData.RemoveTodoItem(Item.ItemData);
+        if Item.ItemData.Completed then
+        begin
+          TodoItemData.RemoveCompletedItem(Item.ItemData)
+        end
+        else
+        begin
+          TodoItemData.RemoveTodoItem(Item.ItemData)
+        end;
+
         TodoItemData.SaveToFile('TodoItems.json');
       end;
 
     TodoItemList.Delete(ItemIndex);
   end;
+end;
+
+procedure TMainForm.ChangeTodoItemCompletedMessage(var Msg: TMessage);
+var
+  Item: TTodoItem;
+  LayoutItem: TdxLayoutItem;
+  ItemData: TTodoItemData;
+begin
+  Item := TTodoItem(Msg.WParam);
+  ItemData := Item.ItemData;
+  LayoutItem := ScrollerControl.FindItem(Item);
+
+  if Assigned(ItemData) and Assigned(LayoutItem) then
+  begin
+    if ItemData.Completed then
+    begin
+      todoItemData.RemoveTodoItem(ItemData);
+      todoItemData.AddCompletedItem(ItemData);
+
+      LayoutItem.Index := TodoItemList.Count - 1;
+    end
+    else
+    begin
+      todoItemData.RemoveCompletedItem(ItemData);
+      todoItemData.AddTodoItem(ItemData);
+
+      LayoutItem.Index := todoItemData.FTodoItems.Count - 1;
+    end;
+  end;
+
+  SaveTodoItems();
 end;
 
 procedure TMainForm.ToggleExpandTodoItemMessage(var Msg: TMessage);
@@ -168,6 +209,11 @@ begin
 end;
 
 procedure TMainForm.SaveTodoItemsMessage(var Msg: TMessage);
+begin
+  SaveTodoItems();
+end;
+
+procedure TMainForm.SaveTodoItems();
 begin
   TodoItemData.SaveToFile('TodoItems.json');
 end;

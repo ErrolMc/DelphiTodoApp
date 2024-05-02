@@ -62,7 +62,7 @@ begin
   CheckBox := Sender as TcxCheckBox;
   ItemData.Completed := CheckBox.Checked;
 
-  PostMessage(Application.MainForm.Handle, WM_SAVE_TODO_ITEMS, WPARAM(Self), 0);
+  PostMessage(Application.MainForm.Handle, WM_CHANGE_TODO_COMPLETED, WPARAM(Self), 0);
 end;
 
 procedure TTodoItem.DeleteButtonClick(Sender: TObject);
