@@ -26,6 +26,8 @@ uses
   cxButtons, CommonUnit, TodoItemData;
 
 type
+  TOnChangeCompleted = procedure(Sender: TObject) of object;
+
   TTodoItem = class(TFrame)
     MainPanel: TdxPanel;
     CompletedCheckEdit: TcxCheckBox;
@@ -38,14 +40,14 @@ type
     procedure MainPanelClick(Sender: TObject);
     procedure CompletedCheckEditClick(Sender: TObject);
   private
-    { Private declarations }
+    FOnChangeCompleted: TOnChangeCompleted;
     procedure SetExpandedState(State: Boolean);
   public
-    { Public declarations }
     NoNotify: Boolean;
     Collapsed: Boolean;
     ItemData: TTodoItemData;
     procedure OnShow();
+    property OnChangeCompleted: TOnChangeCompleted read FOnChangeCompleted write FOnChangeCompleted;
   end;
 
 implementation
@@ -62,7 +64,8 @@ begin
   CheckBox := Sender as TcxCheckBox;
   ItemData.Completed := CheckBox.Checked;
 
-  PostMessage(Application.MainForm.Handle, WM_CHANGE_TODO_COMPLETED, WPARAM(Self), 0);
+  if Assigned(OnChangeCompleted) then
+    OnChangeCompleted(Self);
 end;
 
 procedure TTodoItem.DeleteButtonClick(Sender: TObject);
@@ -76,7 +79,6 @@ end;
 procedure TTodoItem.MainPanelClick(Sender: TObject);
 begin
   SetExpandedState(not Collapsed);
-  PostMessage(Application.MainForm.Handle, WM_TOGGLE_EXPAND_TODO_ITEM, WPARAM(Self), 0);
 end;
 
 procedure TTodoItem.MainPanelMouseEnter(Sender: TObject);

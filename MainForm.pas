@@ -42,18 +42,15 @@ type
     procedure dxFluentDesignFormCreate(Sender: TObject);
     procedure dxFluentDesignFormDestroy(Sender: TObject);
   private
-    { Private declarations }
     NumItems: integer;
     TodoItemList: TObjectList<TFrame>;
     TodoItemData: TTodoItemDataList;
     Spacer: TCompletedSpacerControl;
 
-    procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure DeleteTodoItemMessage(var Msg: TMessage); message WM_DELETE_TODO_ITEM;
-    procedure ToggleExpandTodoItemMessage(var Msg: TMessage); message WM_TOGGLE_EXPAND_TODO_ITEM;
-    procedure ToggleCompletedSpacerExpanded(var Msg: TMessage); message WM_TOGGLE_COMPLETED_EXPANDED;
-    procedure SaveTodoItemsMessage(var Msg: TMessage); message WM_SAVE_TODO_ITEMS;
-    procedure ChangeTodoItemCompletedMessage(var Msg: TMessage); message WM_CHANGE_TODO_COMPLETED;
+    procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
+    procedure ToggleCompletedSpacerExpanded(Sender: TObject; IsExpanded: Boolean);
+    procedure OnChangeTodoItemCompleted(Sender: TObject);
     procedure SaveTodoItems();
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure SpawnTodoItem(ItemData: TTodoItemData; isNew: Boolean = False);
@@ -90,6 +87,7 @@ begin
   Spacer.SetExpanded(true);
   SpacerLayoutItem := ScrollerControlGroup_Root.CreateItemForControl(Spacer);
   Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
+  Spacer.OnToggleCompletedExpanded := ToggleCompletedSpacerExpanded;
 
   TodoItemList.Add(Spacer);
 
@@ -126,6 +124,7 @@ begin
   NewItem := TTodoItem.Create(ScrollerControl);
   NewItem.ItemData := ItemData;
   NewItem.NoNotify := True;
+  NewItem.OnChangeCompleted	:= OnChangeTodoItemCompleted;
 
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
   NumItems := NumItems + 1;
@@ -144,7 +143,7 @@ begin
   end;
 
   NewItem.Visible := True;
-  NewItem.NoNotify := False;	
+  NewItem.NoNotify := False;
   NewItem.OnShow();
 
   TodoItemList.Add(NewItem);
@@ -179,58 +178,56 @@ begin
   end;
 end;
 
-procedure TMainForm.ChangeTodoItemCompletedMessage(var Msg: TMessage);
+procedure TMainForm.OnChangeTodoItemCompleted(Sender: TObject);
 var
   Item: TTodoItem;
   LayoutItem: TdxLayoutItem;
   ItemData: TTodoItemData;
 begin
-  Item := TTodoItem(Msg.WParam);
-  ItemData := Item.ItemData;
-  LayoutItem := ScrollerControl.FindItem(Item);
-
-  if Assigned(ItemData) and Assigned(LayoutItem) then
+  if Sender is TTodoItem then
   begin
-    if ItemData.Completed then
-    begin
-      todoItemData.RemoveTodoItem(ItemData);
-      todoItemData.AddCompletedItem(ItemData);
+    Item := TTodoItem(Sender);
+    ItemData := Item.ItemData;
+    LayoutItem := ScrollerControl.FindItem(Item);
 
-      if not Spacer.IsExpanded then
+    if Assigned(ItemData) and Assigned(LayoutItem) then
+    begin
+      if ItemData.Completed then
       begin
-         var ItemIndex : integer := TodoItemList.IndexOf(Item);
-         TodoItemList.Delete(ItemIndex);
+        todoItemData.RemoveTodoItem(ItemData);
+        todoItemData.AddCompletedItem(ItemData);
+
+        if not Spacer.IsExpanded then
+        begin
+           var ItemIndex : integer := TodoItemList.IndexOf(Item);
+           TodoItemList.Delete(ItemIndex);
+        end
+        else
+        begin
+          LayoutItem.Index := TodoItemList.Count - 1;
+        end
       end
       else
       begin
-        LayoutItem.Index := TodoItemList.Count - 1;
-      end
-    end
-    else
-    begin
-      todoItemData.RemoveCompletedItem(ItemData);
-      todoItemData.AddTodoItem(ItemData);
+        todoItemData.RemoveCompletedItem(ItemData);
+        todoItemData.AddTodoItem(ItemData);
 
-      LayoutItem.Index := todoItemData.FTodoItems.Count - 1;
+        LayoutItem.Index := todoItemData.FTodoItems.Count - 1;
+      end;
     end;
+
+    Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
+    SaveTodoItems();
   end;
-
-  Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
-  SaveTodoItems();
 end;
 
-procedure TMainForm.ToggleExpandTodoItemMessage(var Msg: TMessage);
-begin
-  Exit();
-end;
-
-procedure TMainForm.ToggleCompletedSpacerExpanded(var Msg: TMessage);
+procedure TMainForm.ToggleCompletedSpacerExpanded(Sender: TObject; IsExpanded: Boolean);
 var
   I: Integer;
   Item: TTodoItem;
   ItemData: TTodoItemData;
 begin
-  if Spacer.IsExpanded then
+  if IsExpanded then
   begin
     for ItemData in TodoItemData.FCompletedItems do
     begin
@@ -251,11 +248,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TMainForm.SaveTodoItemsMessage(var Msg: TMessage);
-begin
-  SaveTodoItems();
 end;
 
 procedure TMainForm.SaveTodoItems();

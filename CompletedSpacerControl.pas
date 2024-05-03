@@ -26,6 +26,8 @@ uses
   cxButtons, Vcl.ExtCtrls, dxGDIPlusClasses, cxImage, CommonUnit;
 
 type
+  TOnToggleCompletedExpanded = procedure(Sender: TObject; IsExpanded: Boolean) of object;
+
   TCompletedSpacerControl = class(TFrame)
     MainPanel: TdxPanel;
     CompletedLabel: TcxLabel;
@@ -36,12 +38,12 @@ type
     procedure MainPanelMouseLeave(Sender: TObject);
     procedure MainPanelClick(Sender: TObject);
   private
-    { Private declarations }
+    FOnToggleCompletedExpanded: TOnToggleCompletedExpanded;
   public
     IsExpanded: boolean;
     procedure SetExpanded(State: boolean);
     procedure SetCompletedAmount(amount: integer);
-    { Public declarations }
+    property OnToggleCompletedExpanded: TOnToggleCompletedExpanded read FOnToggleCompletedExpanded write FOnToggleCompletedExpanded;
   end;
 
 implementation
@@ -63,7 +65,8 @@ end;
 procedure TCompletedSpacerControl.MainPanelClick(Sender: TObject);
 begin
   SetExpanded(not IsExpanded);
-  PostMessage(Application.MainForm.Handle, WM_TOGGLE_COMPLETED_EXPANDED, WPARAM(Self), 0);
+  if Assigned(OnToggleCompletedExpanded) then
+    OnToggleCompletedExpanded(Self, IsExpanded);
 end;
 
 procedure TCompletedSpacerControl.MainPanelMouseEnter(Sender: TObject);
