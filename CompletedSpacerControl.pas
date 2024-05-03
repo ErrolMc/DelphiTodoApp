@@ -23,7 +23,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint, dxSkinWXI,
   dxSkinXmas2008Blue, cxGeometry, dxFramedControl, dxPanel, Vcl.StdCtrls,
   cxContainer, cxEdit, cxCheckBox, cxLabel, cxTextEdit, cxMemo, Vcl.Menus,
-  cxButtons, Vcl.ExtCtrls, dxGDIPlusClasses, cxImage;
+  cxButtons, Vcl.ExtCtrls, dxGDIPlusClasses, cxImage, CommonUnit;
 
 type
   TCompletedSpacerControl = class(TFrame)
@@ -40,6 +40,7 @@ type
   public
     IsExpanded: boolean;
     procedure SetExpanded(State: boolean);
+    procedure SetCompletedAmount(amount: integer);
     { Public declarations }
   end;
 
@@ -47,6 +48,10 @@ implementation
 
 {$R *.dfm}
 
+procedure TCompletedSpacerControl.SetCompletedAmount(amount: integer);
+begin
+  CompletedAmtText.Caption := IntToStr(amount);
+end;
 
 procedure TCompletedSpacerControl.SetExpanded(State: boolean);
 begin
@@ -58,6 +63,7 @@ end;
 procedure TCompletedSpacerControl.MainPanelClick(Sender: TObject);
 begin
   SetExpanded(not IsExpanded);
+  PostMessage(Application.MainForm.Handle, WM_TOGGLE_COMPLETED_EXPANDED, WPARAM(Self), 0);
 end;
 
 procedure TCompletedSpacerControl.MainPanelMouseEnter(Sender: TObject);
