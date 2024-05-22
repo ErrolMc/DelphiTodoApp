@@ -30,28 +30,32 @@ type
   TOnEditNotes = procedure(Sender: TObject) of object;
 
   TTodoItem = class(TFrame)
+    MainPanel: TdxPanel;
+    CompletedCheckEdit: TcxCheckBox;
+    LabelText: TcxLabel;
+    NotesEdit: TcxMemo;
+    DeleteButton: TcxButton;
+
     procedure DeleteButtonClick(Sender: TObject);
     procedure MainPanelMouseEnter(Sender: TObject);
     procedure MainPanelMouseLeave(Sender: TObject);
     procedure MainPanelClick(Sender: TObject);
     procedure CompletedCheckEditClick(Sender: TObject);
     procedure NotesEditChange(Sender: TObject);
+
   private
-    MainPanel: TdxPanel;
-    CompletedCheckEdit: TcxCheckBox;
-    LabelText: TcxLabel;
-    NotesEdit: TcxMemo;
-    DeleteButton: TcxButton;
     FOnChangeCompleted: TOnChangeCompleted;
     FOnEditNotes: TOnEditNotes;
 
-    procedure SetExpandedState(State: Boolean);
   public
     NoNotify: Boolean;
     Collapsed: Boolean;
     ItemData: TTodoItemData;
+
     procedure Setup(Data: TTodoItemData);
     procedure OnShow();
+    procedure SetExpandedState(State: Boolean);
+
     property OnChangeCompleted: TOnChangeCompleted read FOnChangeCompleted write FOnChangeCompleted;
     property OnEditNotes: TOnEditNotes read FOnEditNotes write FOnEditNotes;
   end;
@@ -99,7 +103,7 @@ end;
 
 procedure TTodoItem.OnShow();
 begin
-  SetExpandedState(True);
+  SetExpandedState(False);
   NotesEdit.Properties.OnChange := NotesEditChange;
 end;
 
@@ -137,7 +141,9 @@ begin
   ItemData.Notes := NotesEdit.Text;
 
   if Assigned(OnEditNotes) then
+  begin
     OnEditNotes(Self);
+  end;
 end;
 
 end.

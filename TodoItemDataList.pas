@@ -24,13 +24,14 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    function NumCompletedItems(): Integer;
+
+    function NumItems(Completed: boolean): Integer;
     function AddTodoItem(Header, Notes: string): TTodoItemData; overload;
     function RemoveTodoItem(ItemID: Integer): Boolean;
     function UpdateTodoItem(ItemID: Integer; Completed: Boolean; Notes: string): Boolean;
     function Serialize: string;
-    procedure Deserialize(const AJsonStr: string);
 
+    procedure Deserialize(const AJsonStr: string);
     procedure SaveToFile(const FileName: string);
     procedure LoadFromFile(const FileName: string);
   end;
@@ -109,14 +110,14 @@ begin
   end;
 end;
 
-function TTodoItemDataList.NumCompletedItems(): Integer;
+function TTodoItemDataList.NumItems(Completed: boolean): Integer;
 var
   i: Integer;
 begin
   Result := 0;
   for i := 0 to FTodoItems.Count - 1 do
   begin
-    if FTodoItems.Items[i].Completed = true then
+    if FTodoItems.Items[i].Completed = Completed then
     begin
       Result := Result + 1;
     end;

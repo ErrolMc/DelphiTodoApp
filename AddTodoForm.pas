@@ -35,15 +35,14 @@ type
     NotesLabel: TcxLabel;
     AddTodoButton: TcxButton;
     CancelButton: TcxButton;
+
     procedure AddTodoButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
 
-
   private
-    { Private declarations }
     FOnTodoAdded: TTodoAddedEvent;
+
   public
-    { Public declarations }
     property OnTodoAdded: TTodoAddedEvent read FOnTodoAdded write FOnTodoAdded;
   end;
 
@@ -57,7 +56,9 @@ implementation
 procedure TAddTodoForm.AddTodoButtonClick(Sender: TObject);
 begin
   if Assigned(FOnTodoAdded) then
+  begin
     FOnTodoAdded(Self, HeaderEdit.Text, NotesEdit.Text);
+  end;
   Close;
 end;
 

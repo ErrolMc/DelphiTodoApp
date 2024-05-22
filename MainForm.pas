@@ -38,6 +38,7 @@ type
     ScrollerControlGroup_Root: TdxLayoutGroup;
     ScrollerControl: TdxLayoutControl;
     ScrollerPanelParent: TdxPanel;
+
     procedure AddTodoButtonClick(Sender: TObject);
     procedure dxFluentDesignFormCreate(Sender: TObject);
     procedure dxFluentDesignFormDestroy(Sender: TObject);
@@ -90,7 +91,7 @@ begin
   Spacer.Visible := True;
   Spacer.SetExpanded(true);
   SpacerLayoutItem := ScrollerControlGroup_Root.CreateItemForControl(Spacer);
-  Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
+  Spacer.SetCompletedAmount(TodoItemData.NumItems(True));
   Spacer.OnToggleCompletedExpanded := ToggleCompletedSpacerExpanded;
 
   TodoItemList.Add(Spacer);
@@ -144,7 +145,7 @@ begin
   LayoutItem := ScrollerControlGroup_Root.CreateItemForControl(NewItem);
   if isNew then
   begin
-    LayoutItem.Index := todoItemData.FTodoItems.Count - 1;
+    LayoutItem.Index := TodoItemData.NumItems(False) - 1;
   end;
 
   NewItem.Visible := True;
@@ -166,13 +167,13 @@ begin
   begin
     if Item.ItemData <> nil then
       begin
-        if Item.ItemData.Completed then
-        begin
-          Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
-        end;
-
         TodoItemData.RemoveTodoItem(Item.ItemData.ID);
         SaveTodoItems();
+
+        if Item.ItemData.Completed then
+        begin
+          Spacer.SetCompletedAmount(TodoItemData.NumItems(True));
+        end;
       end;
 
     TodoItemList.Delete(ItemIndex);
@@ -205,8 +206,6 @@ begin
 
     if Assigned(ItemData) and Assigned(LayoutItem) then
     begin
-      TodoItemData.UpdateTodoItem(ItemData.ID, ItemData.Completed, ItemData.Notes);
-
       if ItemData.Completed then
       begin
         if not Spacer.IsExpanded then
@@ -221,11 +220,14 @@ begin
       end
       else
       begin
-        LayoutItem.Index := TodoItemData.FTodoItems.Count - 1;
+        LayoutItem.Index := TodoItemData.NumItems(False) - 1;
       end;
+
+      TodoItemData.UpdateTodoItem(ItemData.ID, ItemData.Completed, ItemData.Notes);
     end;
 
-    Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
+    Item.SetExpandedState(False);
+    Spacer.SetCompletedAmount(TodoItemData.NumItems(True));
     SaveTodoItems();
   end;
 end;

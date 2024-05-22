@@ -54,6 +54,7 @@ object MainForm: TMainForm
       Margins.Bottom = 5
       Align = alLeft
       Ctl3D = False
+      Visible = False
       ActiveGroupIndex = -1
       TabOrder = 1
       LookAndFeel.NativeStyle = False
