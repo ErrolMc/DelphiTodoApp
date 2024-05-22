@@ -27,27 +27,33 @@ uses
 
 type
   TOnChangeCompleted = procedure(Sender: TObject) of object;
+  TOnEditNotes = procedure(Sender: TObject) of object;
 
   TTodoItem = class(TFrame)
-    MainPanel: TdxPanel;
-    CompletedCheckEdit: TcxCheckBox;
-    LabelText: TcxLabel;
-    NotesEdit: TcxMemo;
-    DeleteButton: TcxButton;
     procedure DeleteButtonClick(Sender: TObject);
     procedure MainPanelMouseEnter(Sender: TObject);
     procedure MainPanelMouseLeave(Sender: TObject);
     procedure MainPanelClick(Sender: TObject);
     procedure CompletedCheckEditClick(Sender: TObject);
+    procedure NotesEditChange(Sender: TObject);
   private
+    MainPanel: TdxPanel;
+    CompletedCheckEdit: TcxCheckBox;
+    LabelText: TcxLabel;
+    NotesEdit: TcxMemo;
+    DeleteButton: TcxButton;
     FOnChangeCompleted: TOnChangeCompleted;
+    FOnEditNotes: TOnEditNotes;
+
     procedure SetExpandedState(State: Boolean);
   public
     NoNotify: Boolean;
     Collapsed: Boolean;
     ItemData: TTodoItemData;
+    procedure Setup(Data: TTodoItemData);
     procedure OnShow();
     property OnChangeCompleted: TOnChangeCompleted read FOnChangeCompleted write FOnChangeCompleted;
+    property OnEditNotes: TOnEditNotes read FOnEditNotes write FOnEditNotes;
   end;
 
 implementation
@@ -94,13 +100,22 @@ end;
 procedure TTodoItem.OnShow();
 begin
   SetExpandedState(True);
+  NotesEdit.Properties.OnChange := NotesEditChange;
+end;
+
+procedure TTodoItem.Setup(Data: TTodoItemData);
+begin
+  ItemData := Data;
+  LabelText.Caption := ItemData.Header;
+  NotesEdit.Text := ItemData.Notes;
+  CompletedCheckEdit.Checked := ItemData.Completed;
 end;
 
 procedure TTodoItem.SetExpandedState(State: Boolean);
 begin
   if State then
     begin
-      Self.Height	:= 170;
+      Self.Height := 170;
       NotesEdit.Show();
 
       Self.Refresh();
@@ -109,12 +124,20 @@ begin
     end
   else
     begin
-      Self.Height	:= 40;
+      Self.Height := 40;
       NotesEdit.Hide();
       NotesEdit.Refresh();
     end;
 
   Collapsed := State;
+end;
+
+procedure TTodoItem.NotesEditChange(Sender: TObject);
+begin
+  ItemData.Notes := NotesEdit.Text;
+
+  if Assigned(OnEditNotes) then
+    OnEditNotes(Self);
 end;
 
 end.

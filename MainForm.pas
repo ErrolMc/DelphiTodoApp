@@ -51,6 +51,7 @@ type
     procedure HandleTodoAdded(Sender: TObject; const HeaderText, NotesText: String);
     procedure ToggleCompletedSpacerExpanded(Sender: TObject; IsExpanded: Boolean);
     procedure OnChangeTodoItemCompleted(Sender: TObject);
+    procedure OnEditTodoItemNotes(Sender: TObject);
     procedure SaveTodoItems();
     procedure AddTodoItem(const HeaderText, NotesText: string);
     procedure SpawnTodoItem(ItemData: TTodoItemData; isNew: Boolean = False);
@@ -78,7 +79,10 @@ begin
   // Spawn TodoItem controls for each loaded item
   for LoadedItem in TodoItemData.FTodoItems do
   begin
-    SpawnTodoItem(LoadedItem);
+    if not LoadedItem.Completed then
+    begin
+      SpawnTodoItem(LoadedItem);
+    end;
   end;
 
   // spawn spacer
@@ -86,15 +90,18 @@ begin
   Spacer.Visible := True;
   Spacer.SetExpanded(true);
   SpacerLayoutItem := ScrollerControlGroup_Root.CreateItemForControl(Spacer);
-  Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
+  Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
   Spacer.OnToggleCompletedExpanded := ToggleCompletedSpacerExpanded;
 
   TodoItemList.Add(Spacer);
 
   // spawn completed items
-  for LoadedItem in TodoItemData.FCompletedItems do
+  for LoadedItem in TodoItemData.FTodoItems do
   begin
-    SpawnTodoItem(LoadedItem);
+    if LoadedItem.Completed then
+    begin
+      SpawnTodoItem(LoadedItem);
+    end;
   end;
 end;
 
@@ -108,7 +115,7 @@ var
   ItemData: TTodoItemData;
 begin
   ItemData := TodoItemData.AddTodoItem(HeaderText, NotesText);
-  TodoItemData.SaveToFile('TodoItems.json');
+  SaveTodoItems();
 
   SpawnTodoItem(ItemData, True);
 end;
@@ -122,16 +129,14 @@ begin
     Exit();
 
   NewItem := TTodoItem.Create(ScrollerControl);
-  NewItem.ItemData := ItemData;
   NewItem.NoNotify := True;
-  NewItem.OnChangeCompleted	:= OnChangeTodoItemCompleted;
+  NewItem.OnChangeCompleted := OnChangeTodoItemCompleted;
+  NewItem.OnEditNotes := OnEditTodoItemNotes;
 
   NewItem.Name := 'TodoItem_' + IntToStr(NumItems);
   NumItems := NumItems + 1;
 
-  NewItem.LabelText.Caption := ItemData.Header;
-  NewItem.NotesEdit.Text := ItemData.Notes;
-  NewItem.CompletedCheckEdit.Checked := ItemData.Completed;
+  NewItem.Setup(ItemData);
   NewItem.Visible := True;
 
   NewItem.Width := ScrollerControl.ClientWidth - 25;
@@ -163,19 +168,27 @@ begin
       begin
         if Item.ItemData.Completed then
         begin
-          TodoItemData.RemoveCompletedItem(Item.ItemData);
-          Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
-        end
-        else
-        begin
-          TodoItemData.RemoveTodoItem(Item.ItemData);
+          Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
         end;
 
-        TodoItemData.SaveToFile('TodoItems.json');
+        TodoItemData.RemoveTodoItem(Item.ItemData.ID);
+        SaveTodoItems();
       end;
 
     TodoItemList.Delete(ItemIndex);
   end;
+end;
+
+procedure TMainForm.OnEditTodoItemNotes(Sender: TObject);
+var
+  Item: TTodoItem;
+  ItemData: TTodoItemData;
+begin
+  Item := TTodoItem(Sender);
+  ItemData := Item.ItemData;
+
+  TodoItemData.UpdateTodoItem(ItemData.ID, ItemData.Completed, ItemData.Notes);
+  SaveTodoItems();
 end;
 
 procedure TMainForm.OnChangeTodoItemCompleted(Sender: TObject);
@@ -192,11 +205,10 @@ begin
 
     if Assigned(ItemData) and Assigned(LayoutItem) then
     begin
+      TodoItemData.UpdateTodoItem(ItemData.ID, ItemData.Completed, ItemData.Notes);
+
       if ItemData.Completed then
       begin
-        todoItemData.RemoveTodoItem(ItemData);
-        todoItemData.AddCompletedItem(ItemData);
-
         if not Spacer.IsExpanded then
         begin
            var ItemIndex : integer := TodoItemList.IndexOf(Item);
@@ -209,14 +221,11 @@ begin
       end
       else
       begin
-        todoItemData.RemoveCompletedItem(ItemData);
-        todoItemData.AddTodoItem(ItemData);
-
-        LayoutItem.Index := todoItemData.FTodoItems.Count - 1;
+        LayoutItem.Index := TodoItemData.FTodoItems.Count - 1;
       end;
     end;
 
-    Spacer.SetCompletedAmount(TodoItemData.FCompletedItems.Count);
+    Spacer.SetCompletedAmount(TodoItemData.NumCompletedItems());
     SaveTodoItems();
   end;
 end;
@@ -229,9 +238,12 @@ var
 begin
   if IsExpanded then
   begin
-    for ItemData in TodoItemData.FCompletedItems do
+    for ItemData in TodoItemData.FTodoItems do
     begin
-      SpawnTodoItem(ItemData);
+      if ItemData.Completed then
+      begin
+        SpawnTodoItem(ItemData);
+      end;
     end;
   end
   else

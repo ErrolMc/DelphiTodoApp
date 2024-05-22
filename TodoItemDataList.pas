@@ -9,8 +9,8 @@ uses
 type
   TTodoItemsWrapper = class
   public
+    TotalItemCount: Integer;
     TodoItems: TObjectList<TTodoItemData>;
-    CompletedItems: TObjectList<TTodoItemData>;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -19,16 +19,15 @@ type
   private
 
   public
+    FTotalItemCount: Integer;
     FTodoItems: TObjectList<TTodoItemData>;
-    FCompletedItems: TObjectList<TTodoItemData>;
 
     constructor Create;
     destructor Destroy; override;
+    function NumCompletedItems(): Integer;
     function AddTodoItem(Header, Notes: string): TTodoItemData; overload;
-    procedure AddTodoItem(Item: TTodoItemData); overload;
-    procedure AddCompletedItem(Item: TTodoItemData);
-    function RemoveTodoItem(Item: TTodoItemData): Boolean;
-    function RemoveCompletedItem(Item: TTodoItemData): Boolean;
+    function RemoveTodoItem(ItemID: Integer): Boolean;
+    function UpdateTodoItem(ItemID: Integer; Completed: Boolean; Notes: string): Boolean;
     function Serialize: string;
     procedure Deserialize(const AJsonStr: string);
 
@@ -41,69 +40,98 @@ implementation
 constructor TTodoItemsWrapper.Create;
 begin
   inherited Create;
+  TotalItemCount := 0;
   TodoItems := TObjectList<TTodoItemData>.Create(False);
-  CompletedItems := TObjectList<TTodoItemData>.Create(False);
 end;
 
 destructor TTodoItemsWrapper.Destroy;
 begin
   TodoItems.Free;
-  CompletedItems.Free;
   inherited;
 end;
 
 constructor TTodoItemDataList.Create;
 begin
   inherited Create;
+  FTotalItemCount := 0;
   FTodoItems := TObjectList<TTodoItemData>.Create(False);
-  FCompletedItems := TObjectList<TTodoItemData>.Create(False);
 end;
 
 destructor TTodoItemDataList.Destroy;
 begin
   FTodoItems.Free;
-  FCompletedItems.Free;
   inherited;
 end;
 
 function TTodoItemDataList.AddTodoItem(Header, Notes: string): TTodoItemData;
 begin
+  FTotalItemCount := FTotalItemCount + 1;
   Result := TTodoItemData.Create;
+  Result.ID := FTotalItemCount;
   Result.Header := Header;
   Result.Notes := Notes;
   Result.Completed := False;
   FTodoItems.Add(Result);
 end;
 
-procedure TTodoItemDataList.AddTodoItem(Item: TTodoItemData);
+function TTodoItemDataList.RemoveTodoItem(ItemID: Integer): Boolean;
+var
+  i: Integer;
 begin
-  FTodoItems.Add(Item);
+  Result := False;
+  for i := 0 to FTodoItems.Count - 1 do
+  begin
+    if FTodoItems.Items[i].ID = ItemID then
+    begin
+      FTodoItems.Delete(i);
+      Result := True;
+      Break;
+    end;
+  end;
 end;
 
-procedure TTodoItemDataList.AddCompletedItem(Item: TTodoItemData);
+function TTodoItemDataList.UpdateTodoItem(ItemID: Integer; Completed: Boolean; Notes: string): Boolean;
+var
+  i: Integer;
+  Item: TTodoItemData;
 begin
-  FCompletedItems.Add(Item);
+  Result := False;
+  for i := 0 to FTodoItems.Count - 1 do
+  begin
+    if FTodoItems.Items[i].ID = ItemID then
+    begin
+      FTodoItems[i].Notes := Notes;
+      FTodoItems[i].Completed := Completed;
+
+      Result := True;
+      Break;
+    end;
+  end;
 end;
 
-function TTodoItemDataList.RemoveTodoItem(Item: TTodoItemData): Boolean;
+function TTodoItemDataList.NumCompletedItems(): Integer;
+var
+  i: Integer;
 begin
-  Result := FTodoItems.Remove(Item) >= 0;
+  Result := 0;
+  for i := 0 to FTodoItems.Count - 1 do
+  begin
+    if FTodoItems.Items[i].Completed = true then
+    begin
+      Result := Result + 1;
+    end;
+  end;
 end;
 
-function TTodoItemDataList.RemoveCompletedItem(Item: TTodoItemData): Boolean;
-begin
-  Result := FCompletedItems.Remove(Item) >= 0;
-end;
-
-function TTodoItemDataList.Serialize: string;
+function TTodoItemDataList.Serialize(): string;
 var
   Serializer: TJsonSerializer;
   Wrapper: TTodoItemsWrapper;
 begin
   Wrapper := TTodoItemsWrapper.Create;
   try
+    Wrapper.TotalItemCount := FTotalItemCount;
     Wrapper.TodoItems.AddRange(FTodoItems);
-    Wrapper.CompletedItems.AddRange(FCompletedItems);
 
     Serializer := TJsonSerializer.Create;
     try
@@ -125,11 +153,10 @@ begin
   try
     Wrapper := Serializer.Deserialize<TTodoItemsWrapper>(AJsonStr);
     try
+      FTotalItemCount := Wrapper.TotalItemCount;
+
       FTodoItems.Clear();
       FTodoItems.AddRange(Wrapper.TodoItems);
-
-      FCompletedItems.Clear();
-      FCompletedItems.AddRange(Wrapper.CompletedItems);
     finally
       Wrapper.Free();
     end;
